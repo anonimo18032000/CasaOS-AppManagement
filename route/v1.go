@@ -84,6 +84,13 @@ func InitV1Router() http.Handler {
 			// v1ContainerGroup.GET("/info", v1.GetDockerDaemonConfiguration)
 			// v1ContainerGroup.PUT("/info", v1.PutDockerDaemonConfiguration)
 		}
+
+		v1SettingGroup := v1Group.Group("/setting")
+		v1SettingGroup.Use()
+		{
+			v1SettingGroup.GET("/auto-update", v1.GetAutoUpdateSetting)
+			v1SettingGroup.PUT("/auto-update", v1.SetAutoUpdateSetting)
+		}
 	}
 
 	return e

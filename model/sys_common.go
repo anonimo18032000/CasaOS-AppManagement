@@ -5,11 +5,12 @@ type CommonModel struct {
 }
 
 type APPModel struct {
-	LogPath      string
-	LogSaveName  string
-	LogFileExt   string
-	AppStorePath string
-	AppsPath     string
+	LogPath           string
+	LogSaveName       string
+	LogFileExt        string
+	AppStorePath      string
+	AppsPath          string
+	AutoUpdateEnabled bool
 }
 
 type ServerModel struct {

@@ -7,7 +7,7 @@ LogSaveName = app-management
 LogFileExt = log
 AppStorePath = /var/lib/casaos/appstore
 AppsPath = /var/lib/casaos/apps
+AutoUpdateEnabled = false
 
 [server]
 appstore = https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@gh-pages/store/main.zip
-appstore = https://github.com/bigbeartechworld/big-bear-casaos/archive/refs/heads/master.zip

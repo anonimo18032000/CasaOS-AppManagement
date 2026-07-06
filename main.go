@@ -98,6 +98,34 @@ func main() {
 			panic(err)
 		}
 
+		// auto-update installed apps that have a newer version available, opt-in via
+		// AutoUpdateEnabled - the actual update (and its begin/end/error notifications) is the same
+		// ComposeApp.Update used by the manual "Update" button, just triggered on a timer instead.
+		if _, err := crontab.AddFunc("@every 1h", func() {
+			if !config.AppInfo.AutoUpdateEnabled {
+				return
+			}
+
+			composeApps, err := service.MyService.Compose().List(ctx)
+			if err != nil {
+				logger.Error("auto-update: error when listing compose apps", zap.Error(err))
+				return
+			}
+
+			for _, composeApp := range composeApps {
+				if !service.MyService.AppStoreManagement().IsUpdateAvailable(composeApp) {
+					continue
+				}
+
+				logger.Info("auto-update: updating app", zap.String("app", composeApp.Name))
+				if err := composeApp.Update(ctx); err != nil {
+					logger.Error("auto-update: failed to update app", zap.String("app", composeApp.Name), zap.Error(err))
+				}
+			}
+		}); err != nil {
+			panic(err)
+		}
+
 		crontab.Start()
 		defer crontab.Stop()
 
@@ -135,6 +163,7 @@ func main() {
 			"/v1/apps",
 			"/v1/container",
 			"/v1/app-categories",
+			"/v1/setting",
 			route.V1DocPath,
 			route.V2APIPath,
 			route.V2DocPath,
