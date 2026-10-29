@@ -101,8 +101,10 @@ func main() {
 		// auto-update installed apps that have a newer version available, opt-in via
 		// AutoUpdateEnabled - the actual update (and its begin/end/error notifications) is the same
 		// ComposeApp.Update used by the manual "Update" button, just triggered on a timer instead.
-		if _, err := crontab.AddFunc("@every 1h", func() {
-			if !config.AppInfo.AutoUpdateEnabled {
+		// SkipIfStillRunning: updates pull images and can take long; never start a second run on
+		// top of one that is still going.
+		autoUpdateJob := cron.NewChain(cron.SkipIfStillRunning(cron.DiscardLogger)).Then(cron.FuncJob(func() {
+			if !config.IsAutoUpdateEnabled() {
 				return
 			}
 
@@ -122,7 +124,8 @@ func main() {
 					logger.Error("auto-update: failed to update app", zap.String("app", composeApp.Name), zap.Error(err))
 				}
 			}
-		}); err != nil {
+		}))
+		if _, err := crontab.AddJob("@every 1h", autoUpdateJob); err != nil {
 			panic(err)
 		}
 

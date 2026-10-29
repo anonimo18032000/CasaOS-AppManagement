@@ -19,7 +19,7 @@ func GetAutoUpdateSetting(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, modelCommon.Result{
 		Success: common_err.SUCCESS,
 		Message: common_err.GetMsg(common_err.SUCCESS),
-		Data:    map[string]bool{"enabled": config.AppInfo.AutoUpdateEnabled},
+		Data:    map[string]bool{"enabled": config.IsAutoUpdateEnabled()},
 	})
 }
 
@@ -29,8 +29,10 @@ func SetAutoUpdateSetting(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, modelCommon.Result{Success: common_err.CLIENT_ERROR, Message: err.Error()})
 	}
 
-	config.AppInfo.AutoUpdateEnabled = request.Enabled
+	previous := config.IsAutoUpdateEnabled()
+	config.SetAutoUpdateEnabled(request.Enabled)
 	if err := config.SaveSetup(); err != nil {
+		config.SetAutoUpdateEnabled(previous)
 		return ctx.JSON(http.StatusInternalServerError, modelCommon.Result{Success: common_err.SERVICE_ERROR, Message: err.Error()})
 	}
 
